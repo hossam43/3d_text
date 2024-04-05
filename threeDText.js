@@ -20,7 +20,7 @@ const matcapTexture = textureLoader.load("textures/matcap/matcap-8.png");
 const fontLoader = new FontLoader();
 
 fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
-  const textGeometry = new TextGeometry("Wo bist du Hmama?", {
+  const textGeometry = new TextGeometry("LOOK BEHIND YOU", {
     font,
     size: 1,
     height: 0.2,
