@@ -15,6 +15,10 @@ const canvas = document.querySelector("canvas.webgl");
 // Texture
 const textureLoader = new THREE.TextureLoader();
 const matcapTexture = textureLoader.load("textures/matcap/matcap-8.png");
+const matcapTexture2 = textureLoader.load("textures/matcap/matcap-9.png");
+
+// Define text variable outside of the font loader callback
+let text;
 
 // Loading Fonts
 const fontLoader = new FontLoader();
@@ -43,25 +47,44 @@ fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
   textGeometry.center();
 
   const material = new THREE.MeshMatcapMaterial({ matcap: matcapTexture });
-  const text = new THREE.Mesh(textGeometry, material);
+
+  text = new THREE.Mesh(textGeometry, material);
   scene.add(text);
 
   const donutGeometry = new THREE.TorusGeometry(0.3, 0.2, 20, 45);
+  const boxGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+  const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
 
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 220; i++) {
     const donut = new THREE.Mesh(donutGeometry, material);
-    donut.position.x = (Math.random() - 0.5) * 10;
-    donut.position.y = (Math.random() - 0.5) * 10;
-    donut.position.z = (Math.random() - 0.5) * 10;
+    const cube = new THREE.Mesh(boxGeometry, material);
+    const sphere = new THREE.Mesh(sphereGeometry, material);
+
+    donut.position.x = (Math.random() - 0.5) * 20;
+    donut.position.y = (Math.random() - 0.5) * 20;
+    donut.position.z = (Math.random() - 0.5) * 20;
+
+    cube.position.x = (Math.random() - 0.5) * 20;
+    cube.position.y = (Math.random() - 0.5) * 20;
+    cube.position.z = (Math.random() - 0.5) * 20;
+
+    sphere.position.x = (Math.random() - 0.5) * 40;
+    sphere.position.y = (Math.random() - 0.5) * 40;
+    sphere.position.z = (Math.random() - 0.5) * 40;
 
     // random rotation
     donut.rotation.x = Math.random() * Math.PI;
     donut.rotation.y = Math.random() * Math.PI;
+    cube.rotation.x = Math.random() * Math.PI;
+    cube.rotation.y = Math.random() * Math.PI;
 
     // random size
     const scale = Math.random();
     donut.scale.set(scale, scale, scale);
-    scene.add(donut);
+    cube.scale.set(scale, scale, scale);
+    sphere.scale.set(scale, scale, scale);
+
+    scene.add(donut, cube, sphere);
   }
   console.timeEnd("donuts");
 });
@@ -161,21 +184,94 @@ camera.position.z = 10;
 //? Clock
 const clock = new THREE.Clock();
 
-// Animations
-
 const tick = () => {
-  // ? Clock
+  // Clock
   const elapsedTime = clock.getElapsedTime();
-  //   update objects
-  //   plane.rotation.y = 0.1 * elapsedTime;
 
-  //   camera.lookAt(sphere.position);
+  // Update rotations of the objects in the scene
+  scene.traverse((child) => {
+    if (child instanceof THREE.Mesh && child !== text) {
+      // Exclude text geometry
+      child.rotation.x += 0.01; // Rotate around x-axis
+      child.rotation.y += 0.01; // Rotate around y-axis
+      // Add more rotation if needed
+    }
+  });
 
-  // ? Update controls
+  // Update controls
   controls.update();
-  //? Render
+
+  // Render
   renderer.render(scene, camera);
+
+  // Request the next frame
   window.requestAnimationFrame(tick);
 };
 
 tick();
+
+//  sound icon
+
+const soundIcon = document.getElementById("soundIcon");
+const audio = new Audio("./sound2.mp3");
+audio.volume = 0.4;
+let isMuted = true;
+
+soundIcon.addEventListener("click", () => {
+  isMuted = !isMuted;
+  if (isMuted) {
+    audio.pause();
+    soundIcon.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="8px" viewBox="0 0 10 8" version="1.1">
+        <g id="Audio" transform="translate(0.000000, 0.500000)" stroke="currentColor" stroke-width="1" fill-rule="evenodd" stroke-linecap="round">
+        <line x1="8.5" y1="0.493135" x2="8.5" y2="6.50687" id="Line-5"/>
+		
+    
+		<line x1="6.5" y1="0.789016" x2="6.5" y2="6.21098" id="Line-4"/>
+		
+    
+		<line x1="4.5" y1="1.67582" x2="4.5" y2="5.32418" id="Line-3"/>
+		
+    
+		<line x1="2.5" y1="1.14678" x2="2.5" y2="5.85322" id="Line-2"/>
+		
+    
+		<line x1="0.5" y1="1.67582" x2="0.5" y2="5.32418" id="Line-1"/>
+		
+          <line x1="0" y1="8" x2="10" y2="0" stroke="currentColor" stroke-width="1"/>
+        </g>
+      </svg>
+    `;
+  } else {
+    audio.play();
+    soundIcon.innerHTML = `
+      <svg width="10px" height="8px" viewBox="0 0 10 8" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <g id="Audio" transform="translate(0.000000, 0.500000)" stroke="currentColor" stroke-width="1" fill-rule="evenodd" stroke-linecap="round">
+          <line x1="8.5" y1="0.493135" x2="8.5" y2="6.50687" id="Line-5">
+            <animate attributeType="XML" attributeName="y1" values="2;0;2" keyTimes="0;0.5;1" dur=".8s" repeatCount="indefinite"></animate>
+            <animate attributeType="XML" attributeName="y2" values="5;7;5" keyTimes="0;0.5;1" dur=".8s" repeatCount="indefinite"></animate>
+          </line>
+          <line x1="6.5" y1="0.789016" x2="6.5" y2="6.21098" id="Line-4">
+            <animate attributeType="XML" attributeName="y1" values="0;2;0" keyTimes="0;0.5;1" dur=".5s" repeatCount="indefinite"></animate>
+            <animate attributeType="XML" attributeName="y2" values="7;5;7" keyTimes="0;0.5;1" dur=".5s" repeatCount="indefinite"></animate>
+          </line>
+          <line x1="4.5" y1="1.67582" x2="4.5" y2="5.32418" id="Line-3">
+            <animate attributeType="XML" attributeName="y1" values="1;3;1" keyTimes="0;0.5;1" dur=".6s" repeatCount="indefinite"></animate>
+            <animate attributeType="XML" attributeName="y2" values="6;4;6" keyTimes="0;0.5;1" dur=".6s" repeatCount="indefinite"></animate>
+          </line>
+          <line x1="2.5" y1="1.14678" x2="2.5" y2="5.85322" id="Line-2">
+            <animate attributeType="XML" attributeName="y1" values="2;1;2" keyTimes="0;0.5;1" dur=".7s" repeatCount="indefinite"></animate>
+            <animate attributeType="XML" attributeName="y2" values="5;6;5" keyTimes="0;0.5;1" dur=".7s" repeatCount="indefinite"></animate>
+          </line>
+          <line x1="0.5" y1="1.67582" x2="0.5" y2="5.32418" id="Line-1">
+            <animate attributeType="XML" attributeName="y1" values="3;0;3" keyTimes="0;0.5;1" dur=".9s" repeatCount="indefinite"></animate>
+            <animate attributeType="XML" attributeName="y2" values="4;7;4" keyTimes="0;0.5;1" dur=".9s" repeatCount="indefinite"></animate>
+          </line>
+        </g>
+      </svg>
+    `;
+  }
+});
+
+// Play audio on page load and loop it
+audio.loop = true;
